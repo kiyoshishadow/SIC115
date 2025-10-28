@@ -42,5 +42,5 @@ class Cuenta extends Model
     public function movimientos(): HasMany
     {
         return $this->hasMany(Movimiento::class);
-    }
+    } 
 }
