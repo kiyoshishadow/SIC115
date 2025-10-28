@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Filament\Resources\LibroCompras;
+use Filament\Tables\Filters\Filter;
+
 
 use App\Filament\Resources\LibroCompras\Pages\CreateLibroCompra;
 use App\Filament\Resources\LibroCompras\Pages\EditLibroCompra;
@@ -50,18 +52,36 @@ class LibroCompraResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return LibroComprasTable::configure($table)
-            ->headerActions([
-                // Botón para descargar PDF
-                Action::make('descargar_pdf')
-                    ->label('Descargar PDF')
-                    ->icon('heroicon-o-arrow-down-tray')
-                    ->color('danger')
-                    ->url(route('librocompras.pdf'))
-                    ->openUrlInNewTab(),
-
-                
-            ]);
+      return LibroComprasTable::configure($table)
+        ->filters([
+            Filter::make('fecha_documento')
+                ->form([
+                    DatePicker::make('fecha_inicio')->label('Fecha inicio'),
+                    DatePicker::make('fecha_fin')->label('Fecha fin'),
+                ])
+                ->query(function (Builder $query, array $data) {
+                    if (!empty($data['fecha_inicio'])) {
+                        $query->where('fecha_documento', '>=', $data['fecha_inicio']);
+                    }
+                    if (!empty($data['fecha_fin'])) {
+                        $query->where('fecha_documento', '<=', $data['fecha_fin']);
+                    }
+                })
+                ->indicateUsing(function (array $data) {
+                    if (!empty($data['fecha_inicio']) && !empty($data['fecha_fin'])) {
+                        return "Desde {$data['fecha_inicio']} hasta {$data['fecha_fin']}";
+                    }
+                    return null;
+                }),
+        ])
+        ->headerActions([
+            Action::make('descargar_pdf')
+                ->label('Descargar PDF')
+                ->icon('heroicon-o-arrow-down-tray')
+                ->color('danger')
+                ->url(route('librocompras.pdf'))
+                ->openUrlInNewTab(),
+        ]);
     }
 
     public static function getRelations(): array
