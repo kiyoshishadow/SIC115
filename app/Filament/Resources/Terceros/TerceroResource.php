@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Filament\Resources\Terceros;
-
+use Filament\Tables\Filters\SelectFilter;
 use App\Filament\Resources\Terceros\Pages\CreateTercero;
 use App\Filament\Resources\Terceros\Pages\EditTercero;
 use App\Filament\Resources\Terceros\Pages\ListTerceros;
@@ -15,7 +15,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-
+use Filament\Actions\Action;
 class TerceroResource extends Resource
 {
     protected static ?string $model = Tercero::class;
@@ -40,7 +40,35 @@ class TerceroResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return TercerosTable::configure($table);
+        return TercerosTable::configure($table)
+        ->filters([
+            SelectFilter::make('es_cliente')
+                ->label('Cliente')
+                ->options([
+                    1 => 'Sí',
+                    0 => 'No',
+                ]),
+            SelectFilter::make('es_proveedor')
+                ->label('Proveedor')
+                ->options([
+                    1 => 'Sí',
+                    0 => 'No',
+                ]),
+            SelectFilter::make('es_gran_contribuyente')
+                ->label('Gran Contribuyente')
+                ->options([
+                    1 => 'Sí',
+                    0 => 'No',
+                ]),
+        ])
+        ->headerActions([
+            Action::make('descargar_pdf')
+                ->label('Descargar PDF')
+                ->icon('heroicon-o-arrow-down-tray')
+                ->color('danger')
+                ->url(route('terceros.pdf'))
+                ->openUrlInNewTab(),
+        ]);
     }
 
     public static function getRelations(): array

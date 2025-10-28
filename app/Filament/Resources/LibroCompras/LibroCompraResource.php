@@ -15,8 +15,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-//use Illuminate\Database\Eloquent\SoftDeletingScope;
-
+use Filament\Actions\Action; // Importa Action
 use Filament\Forms\Components\DatePicker;
 
 class LibroCompraResource extends Resource
@@ -28,8 +27,6 @@ class LibroCompraResource extends Resource
     protected static ?string $pluralModelLabel = 'Compras (Libro IVA)';
     protected static string|BackedEnum|null $navigationIcon = Heroicon::ArrowTrendingDown;
     protected static string|UnitEnum|null $navigationGroup = 'Libros de IVA'; // Mismo grupo
-
-    //protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static ?string $recordTitleAttribute = 'tipo_libro';
 
@@ -53,7 +50,18 @@ class LibroCompraResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return LibroComprasTable::configure($table);
+        return LibroComprasTable::configure($table)
+            ->headerActions([
+                // Botón para descargar PDF
+                Action::make('descargar_pdf')
+                    ->label('Descargar PDF')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->color('danger')
+                    ->url(route('librocompras.pdf'))
+                    ->openUrlInNewTab(),
+
+                
+            ]);
     }
 
     public static function getRelations(): array
@@ -71,6 +79,7 @@ class LibroCompraResource extends Resource
             'edit' => EditLibroCompra::route('/{record}/edit'),
         ];
     }
+
     /*
     public static function getRecordRouteBindingEloquentQuery(): Builder
     {

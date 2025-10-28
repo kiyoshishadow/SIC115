@@ -23,7 +23,7 @@ use App\Imports\CuentasImport;
 use Filament\Actions\Action;
 use Filament\Tables\Filters\SelectFilter;
 
-use Illuminate\Support\Facades\Response; // Asegúrate de importarlo arriba
+use Illuminate\Support\Facades\Response; 
 class CuentaResource extends Resource
 
 {
@@ -89,8 +89,8 @@ class CuentaResource extends Resource
 // Descargar PDF
     Action::make('descargar_catalogo')
     ->label('Descargar PDF')
-    ->icon('heroicon-o-document')
-    ->color('primary')
+    ->icon('heroicon-o-arrow-down-tray')
+    ->color('danger')
     ->url(route('cuentas.catalogo.pdf'))
     ->openUrlInNewTab(),
         ]);

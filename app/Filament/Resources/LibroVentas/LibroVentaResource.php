@@ -14,7 +14,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-
+use Filament\Actions\Action;
 use App\Models\LibroIva;
 use App\Models\Tercero;
 use Filament\Forms\Components\DatePicker;
@@ -53,10 +53,18 @@ class LibroVentaResource extends Resource
         return LibroVentaForm::configure($schema);
     }
 
-    public static function table(Table $table): Table
-    {
-        return LibroVentasTable::configure($table);
-    }
+public static function table(Table $table): Table
+{
+    return LibroVentasTable::configure($table)
+        ->headerActions([
+            Action::make('descargar_pdf')
+                ->label('PDF')
+                ->icon('heroicon-o-document-arrow-down')
+                ->color('danger')
+                ->url(route('libroventas.pdf'))
+                ->openUrlInNewTab(),
+        ]);
+}
 
     public static function getRelations(): array
     {
