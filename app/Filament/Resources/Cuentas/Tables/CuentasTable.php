@@ -2,13 +2,13 @@
 
 namespace App\Filament\Resources\Cuentas\Tables;
 
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
+use Filament\Tables\Table;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
-use Filament\Tables\Columns\IconColumn;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Table;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
 
 class CuentasTable
 {
@@ -16,32 +16,15 @@ class CuentasTable
     {
         return $table
             ->columns([
-                TextColumn::make('padre.id')
-                    ->searchable(),
-                TextColumn::make('codigo')
-                    ->searchable(),
-                TextColumn::make('nombre')
-                    ->searchable(),
-                TextColumn::make('tipo')
-                    ->badge(),
-                TextColumn::make('naturaleza')
-                    ->badge(),
-                IconColumn::make('permite_movimientos')
-                    ->boolean(),
-                TextColumn::make('saldo_actual')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-            ])
-            ->filters([
-                //
+                TextColumn::make('padre.id')->label('Padre')->searchable(),
+                TextColumn::make('codigo')->label('Código')->searchable(),
+                TextColumn::make('nombre')->label('Nombre')->searchable(),
+                TextColumn::make('tipo')->badge()->label('Tipo'),
+                TextColumn::make('naturaleza')->badge()->label('Naturaleza'),
+                IconColumn::make('permite_movimientos')->boolean()->label('Movimientos'),
+                TextColumn::make('saldo_actual')->numeric()->label('Saldo')->sortable(),
+                TextColumn::make('created_at')->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('updated_at')->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: true),
             ])
             ->recordActions([
                 ViewAction::make(),

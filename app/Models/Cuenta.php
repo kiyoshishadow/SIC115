@@ -43,4 +43,9 @@ class Cuenta extends Model
     {
         return $this->hasMany(Movimiento::class);
     }
+    public function getCodigoNombreAttribute(): string
+{
+    return "{$this->codigo} - {$this->nombre}";
+}
+
 }

@@ -11,6 +11,7 @@ use App\Filament\Resources\Cuentas\Schemas\CuentaInfolist;
 use App\Filament\Resources\Cuentas\Tables\CuentasTable;
 use App\Models\Cuenta;
 use BackedEnum;
+use Filament\Tables\Actions\ButtonAction;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -19,14 +20,12 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Notifications\Notification;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\CuentasImport;
-use Filament\Actions\BulkAction;
 use Filament\Actions\Action;
-// Filament 4
-use Filament\Tables\Actions\ButtonAction;
-use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Filters\SelectFilter;
 
+use Illuminate\Support\Facades\Response; // Asegúrate de importarlo arriba
 class CuentaResource extends Resource
+
 {
     protected static ?string $model = Cuenta::class;
 
@@ -42,55 +41,64 @@ class CuentaResource extends Resource
         return CuentaInfolist::configure($schema);
     }
 
-public static function table(Table $table): Table
-{
-    return CuentasTable::configure($table)
-        ->filters([
-            SelectFilter::make('tipo')->options([
-                'Activo' => 'Activo',
-                'Pasivo' => 'Pasivo',
-                'Patrimonio' => 'Patrimonio',
-                'Ingreso' => 'Ingreso',
-                'Costo' => 'Costo',
-                'Gasto' => 'Gasto',
-            ]),
-            SelectFilter::make('naturaleza')->options([
-                'Deudor' => 'Deudor',
-                'Acreedor' => 'Acreedor',
-            ]),
-        ])
-        ->headerActions([
-            Action::make('importar_excel')
-                ->label('Importar Excel')
-                ->icon('heroicon-o-document')
-                ->color('success')
-                ->form([
-                    FileUpload::make('archivo')
-                        ->acceptedFileTypes(['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel'])
-                        ->required()
-                        ->storeFiles(false),
-                ])
-                ->action(function (array $data) {
-    $import = new CuentasImport;
+    public static function table(Table $table): Table
+    {
+        return CuentasTable::configure($table)
+            ->filters([
+                SelectFilter::make('tipo')->options([
+                    'Activo' => 'Activo',
+                    'Pasivo' => 'Pasivo',
+                    'Patrimonio' => 'Patrimonio',
+                    'Ingreso' => 'Ingreso',
+                    'Costo' => 'Costo',
+                    'Gasto' => 'Gasto',
+                ]),
+                SelectFilter::make('naturaleza')->options([
+                    'Deudor' => 'Deudor',
+                    'Acreedor' => 'Acreedor',
+                ]),
+            ])
+            ->headerActions([
+                // Importar Excel
+                Action::make('importar_excel')
+                    ->label('Importar Excel')
+                    ->icon('heroicon-o-document')
+                    ->color('success')
+                    ->form([
+                        FileUpload::make('archivo')
+                            ->acceptedFileTypes([
+                                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                                'application/vnd.ms-excel'
+                            ])
+                            ->required()
+                            ->storeFiles(false),
+                    ])
+                    ->action(function (array $data) {
+    $import = new CuentasImport();
     Excel::import($import, $data['archivo']);
 
-    $count = $import->getRowCount() ?? 'desconocido';
+    $ok = $import->getInsertadas();
+    $dup = $import->getDuplicadas();
 
     Notification::make()
         ->success()
-        ->title("Se importaron {$count} cuentas correctamente")
+        ->title(" Importación finalizada")
+        ->body(" Insertadas: {$ok}\n Duplicadas ignoradas: {$dup}")
         ->send();
 }),
-
+// Descargar PDF
+    Action::make('descargar_catalogo')
+    ->label('Descargar PDF')
+    ->icon('heroicon-o-document')
+    ->color('primary')
+    ->url(route('cuentas.catalogo.pdf'))
+    ->openUrlInNewTab(),
         ]);
 }
-
-
     public static function getRelations(): array
     {
         return [];
     }
-
     public static function getPages(): array
     {
         return [

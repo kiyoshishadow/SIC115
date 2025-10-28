@@ -4,18 +4,22 @@ namespace App\Imports;
 
 use App\Models\Cuenta;
 use Maatwebsite\Excel\Concerns\ToModel;
-use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
 class CuentasImport implements ToModel, WithHeadingRow
 {
-    use Importable;
-
-    private $rowCount = 0;
+    private int $insertadas = 0;
+    private int $duplicadas = 0;
 
     public function model(array $row)
     {
-        $this->rowCount++;
+        
+        if (Cuenta::where('codigo', $row['codigo'])->exists()) {
+            $this->duplicadas++;
+            return null;
+        }
+
+        $this->insertadas++;
 
         return new Cuenta([
             'codigo' => $row['codigo'],
@@ -27,8 +31,13 @@ class CuentasImport implements ToModel, WithHeadingRow
         ]);
     }
 
-    public function getRowCount(): int
+    public function getInsertadas(): int
     {
-        return $this->rowCount;
+        return $this->insertadas;
+    }
+
+    public function getDuplicadas(): int
+    {
+        return $this->duplicadas;
     }
 }
