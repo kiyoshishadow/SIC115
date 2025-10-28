@@ -26,6 +26,7 @@ class LibroIva extends Model
         'iva_percibido',
         'iva_retenido',
         'total_documento',
+        'concepto',
     ];
 
     protected $casts = [
