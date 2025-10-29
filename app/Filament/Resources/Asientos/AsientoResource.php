@@ -15,7 +15,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-
+use Filament\Tables\Filters\Filter;
+use Filament\Forms\Components\DatePicker;
 class AsientoResource extends Resource
 {
     protected static ?string $model = Asiento::class;
@@ -40,9 +41,21 @@ class AsientoResource extends Resource
     public static function table(Table $table): Table
     {
         return AsientosTable::configure($table)
+        ->filters([
+            Filter::make('fecha')
+                ->form([
+                    DatePicker::make('fecha_inicio')->label('Fecha inicio'),
+                    DatePicker::make('fecha_fin')->label('Fecha fin'),
+                ])
+                ->query(function ($query, array $data) {
+                    return $query
+                        ->when($data['fecha_inicio'], fn($q) => $q->whereDate('fecha', '>=', $data['fecha_inicio']))
+                        ->when($data['fecha_fin'], fn($q) => $q->whereDate('fecha', '<=', $data['fecha_fin']));
+                })
+        ])
         ->headerActions([
             Action::make('libro_diario_pdf')
-                ->label('Exportar Libro Diario')
+                ->label('Descargar PDF')
                 ->icon('heroicon-o-arrow-down-tray')
                 ->color('danger')
                 ->url(route('asientos.pdf'))
