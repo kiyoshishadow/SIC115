@@ -9,7 +9,10 @@ Route::get('/', function () {
     return redirect('/admin');
 });
 
+// Ruta pública (protegida) para generar catálogo de cuentas.
+// Mantenerla fuera del prefijo /admin evita que Filament la capture y devuelva 404.
 Route::get('/cuentas/catalogo-pdf', [CuentaController::class, 'generarCatalogo'])
+    ->middleware(['web', 'auth'])
     ->name('cuentas.catalogo.pdf');
 
 Route::get('/libro-compras/pdf', [LibroCompraController::class, 'exportPdf'])
