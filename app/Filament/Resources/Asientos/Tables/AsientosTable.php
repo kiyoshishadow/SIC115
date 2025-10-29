@@ -20,8 +20,16 @@ class AsientosTable
                     ->sortable(),
                 TextColumn::make('numero_asiento')
                     ->searchable(),
-                TextColumn::make('tipo_asiento')
+                TextColumn::make('descripcion')
                     ->badge(),
+                TextColumn::make('total_debe')
+                    ->label('Total Debe')
+                    ->numeric(decimalPlaces: 2)
+                    ->money('USD'),
+                TextColumn::make('total_haber')
+                    ->label('Total Haber')
+                    ->numeric(decimalPlaces: 2)
+                    ->money('USD'),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -31,6 +39,7 @@ class AsientosTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->defaultSort('fecha', 'desc')
             ->filters([
                 //
             ])

@@ -12,12 +12,14 @@ class Asiento extends Model
     protected $fillable = [
         'fecha',
         'numero_asiento',
+        'total_debe',
+        'total_haber',
         'descripcion',
         'tipo_asiento',
     ];
-    /*
-    public function libroIvas()
+    
+    public function movimientos()
     {
         return $this->hasMany(Movimiento::class);
-    }*/
+    }
 }

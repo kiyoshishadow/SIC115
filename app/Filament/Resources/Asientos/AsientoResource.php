@@ -20,9 +20,12 @@ class AsientoResource extends Resource
 {
     protected static ?string $model = Asiento::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::BookOpen;
 
     protected static ?string $recordTitleAttribute = 'numero_asiento';
+
+    protected static ?string $modelLabel = 'Asiento de Diario';
+    protected static ?string $pluralModelLabel = 'Asientos de Diario';
 
     public static function form(Schema $schema): Schema
     {

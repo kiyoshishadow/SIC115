@@ -15,7 +15,27 @@ class EditAsiento extends EditRecord
     {
         return [
             ViewAction::make(),
-            DeleteAction::make(),
+            //DeleteAction::make(),
         ];
+    }
+
+    protected function afterSave(): void
+    {
+        // $this->record es el Asiento que se acaba de editar
+        $asiento = $this->record;
+
+        $totalDebe = $asiento->movimientos()->sum('debe');
+        $totalHaber = $asiento->movimientos()->sum('haber');
+
+        // Actualizamos los totales
+        $asiento->updateQuietly([
+            'total_debe' => $totalDebe,
+            'total_haber' => $totalHaber,
+        ]);
+    }
+
+    protected function getRedirectUrl(): string
+    {
+        return static::getResource()::getUrl('index');
     }
 }
