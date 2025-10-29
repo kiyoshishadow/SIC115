@@ -72,10 +72,10 @@
 @foreach ($asientos as $asiento)
     <!-- Título por asiento con totales -->
     <div class="asiento-titulo">
-        Asiento N° {{ $asiento->numero_asiento }} — Fecha: {{ \Carbon\Carbon::parse($asiento->fecha)->format('d/m/Y') }} — 
-        Total Debe: ${{ number_format($asiento->total_debe, 2) }} | 
-        Total Haber: ${{ number_format($asiento->total_haber, 2) }}
+        Fecha: {{ \Carbon\Carbon::parse($asiento->fecha)->format('d/m/Y') }} — Asiento N° {{ $asiento->numero_asiento }}  
     </div>
+    <!-- Total Debe: ${{ number_format($asiento->total_debe, 2) }} | 
+        Total Haber: ${{ number_format($asiento->total_haber, 2) }} -->
 
     <table>
         <thead>
@@ -91,24 +91,24 @@
                 <tr class="linea">
                     <td class="codigo">{{ $mov->cuenta->codigo ?? '' }}</td>
                     <td class="cuenta">{{ $mov->cuenta->nombre ?? 'Cuenta sin nombre' }}</td>
-                    <td class="debe">{{ $mov->tipo_movimiento === 'D' ? number_format($mov->monto, 2) : '' }}</td>
-                    <td class="haber">{{ $mov->tipo_movimiento === 'C' ? number_format($mov->monto, 2) : '' }}</td>
+                    <td class="debe">{{ $mov->debe ?? '0.00' }}</td>
+                    <td class="haber">{{ $mov->haber ?? '0.00' }}</td>
                 </tr>
             @endforeach
 
             <!-- Totales por asiento -->
             <tr class="total">
-                <td colspan="2">Totales:</td>
+                <td colspan="2">C/ {{ $asiento->descripcion }}</td>
                 <td>{{ number_format($asiento->total_debe, 2) }}</td>
                 <td>{{ number_format($asiento->total_haber, 2) }}</td>
             </tr>
 
             <!-- Descripción -->
-            <tr>
+            <!--tr>
                 <td colspan="4" class="descripcion">
                     {{ $asiento->descripcion }}
                 </td>
-            </tr>
+            </tr-->
         </tbody>
     </table>
 @endforeach
