@@ -98,7 +98,7 @@
 
             <!-- Totales por asiento -->
             <tr class="total">
-                <td colspan="2">C/ {{ $asiento->descripcion }}</td>
+                <td colspan="2" style="text-align: left;">C/ {{ $asiento->descripcion }}</td>
                 <td>{{ number_format($asiento->total_debe, 2) }}</td>
                 <td>{{ number_format($asiento->total_haber, 2) }}</td>
             </tr>

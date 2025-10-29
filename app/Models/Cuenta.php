@@ -45,8 +45,27 @@ class Cuenta extends Model
         return $this->hasMany(Movimiento::class);
     }
     public function getCodigoNombreAttribute(): string
-{
-    return "{$this->codigo} - {$this->nombre}";
-}
+    {
+        return "{$this->codigo} - {$this->nombre}";
+    }
+    
+     public function actualizarSaldoRecursivo(float $montoDelta): void
+    {
+        // 1. Si el monto a cambiar es 0, no hacemos nada.
+        if ($montoDelta == 0) {
+            return;
+        }
 
+        // 2. Actualizamos el saldo de ESTA cuenta de forma atómica.
+        //    Usamos el nombre de tu columna: 'saldo_actual'.
+        $this->increment('saldo_actual', $montoDelta);
+
+        // 3. Propagamos el cambio al padre (si existe)
+        $padre = $this->padre()->first();
+        
+        if ($padre) {
+            // Llamada recursiva: el padre hace lo mismo
+            $padre->actualizarSaldoRecursivo($montoDelta);
+        }
+    }
 }

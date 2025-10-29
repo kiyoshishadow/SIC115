@@ -43,18 +43,20 @@ class Movimiento extends Model
             DB::transaction(function () use ($movimiento) {
                 $cuenta = Cuenta::lockForUpdate()->find($movimiento->cuenta_id);
                 if (!$cuenta) return; // Si la cuenta no existe, no hacemos nada
-
+                $montoDelta = 0;
                 // 2. Aplicamos la lógica contable
                 if ($cuenta->naturaleza === 'Deudor') {
                     // Deudor (Activos, Gastos): Sube con Debe, Baja con Haber
-                    $cuenta->saldo_actual = $cuenta->saldo_actual + $movimiento->debe - $movimiento->haber;
+                    //$cuenta->saldo_actual = $cuenta->saldo_actual + $movimiento->debe - $movimiento->haber;
+                    $montoDelta = $movimiento->debe - $movimiento->haber;
                 } else if ($cuenta->naturaleza === 'Acreedor') {
                     // Acreedor (Pasivos, Patrimonio, Ingresos): Sube con Haber, Baja con Debe
-                    $cuenta->saldo_actual = $cuenta->saldo_actual + $movimiento->haber - $movimiento->debe;
+                    //$cuenta->saldo_actual = $cuenta->saldo_actual + $movimiento->haber - $movimiento->debe;
+                    $montoDelta = $movimiento->haber - $movimiento->debe;
                 }
 
                 // 3. Guardamos el nuevo saldo en la cuenta
-                $cuenta->save();
+                $cuenta->actualizarSaldoRecursivo($montoDelta);
             });
         });
 
@@ -67,20 +69,22 @@ class Movimiento extends Model
                 // 1. Obtenemos los valores VIEJOS (antes de la edición)
                 $viejoDebe = $movimiento->getOriginal('debe');
                 $viejoHaber = $movimiento->getOriginal('haber');
-
+                $montoDelta = 0;
                 if ($cuenta->naturaleza === 'Deudor') {
-                    $cuenta->saldo_actual = $cuenta->saldo_actual - $viejoDebe + $viejoHaber;
+                    //$cuenta->saldo_actual = $cuenta->saldo_actual - $viejoDebe + $viejoHaber;
+                    $montoDelta = ($movimiento->debe - $movimiento->haber) - ($viejoDebe - $viejoHaber);
                 } else if ($cuenta->naturaleza === 'Acreedor') {
-                    $cuenta->saldo_actual = $cuenta->saldo_actual - $viejoHaber + $viejoDebe;
+                    //$cuenta->saldo_actual = $cuenta->saldo_actual - $viejoHaber + $viejoDebe;
+                    $montoDelta = ($movimiento->haber - $movimiento->debe) - ($viejoHaber - $viejoDebe);
                 }
-                
+                /*
                 if ($cuenta->naturaleza === 'Deudor') {
                     $cuenta->saldo_actual = $cuenta->saldo_actual + $movimiento->debe - $movimiento->haber;
                 } else if ($cuenta->naturaleza === 'Acreedor') {
                     $cuenta->saldo_actual = $cuenta->saldo_actual + $movimiento->haber - $movimiento->debe;
-                }
+                }*/
 
-                $cuenta->save();
+                $cuenta->actualizarSaldoRecursivo($montoDelta);
             });
         });
 
@@ -90,15 +94,17 @@ class Movimiento extends Model
                 $cuenta = Cuenta::lockForUpdate()->find($movimiento->cuenta_id);
                 if (!$cuenta) return;
 
+                $montoDelta = 0;
                 // 1. REVERTIMOS el movimiento que se acaba de borrar
                 if ($cuenta->naturaleza === 'Deudor') {
-                    $cuenta->saldo_actual = $cuenta->saldo_actual - $movimiento->debe + $movimiento->haber;
+                    $montoDelta = $movimiento->haber - $movimiento->debe;
                 } else if ($cuenta->naturaleza === 'Acreedor') {
-                    $cuenta->saldo_actual = $cuenta->saldo_actual - $movimiento->haber + $movimiento->debe;
+                    
+                    $montoDelta = $movimiento->debe - $movimiento->haber;
                 }
 
                 // 2. Guardamos el saldo
-                $cuenta->save();
+                $cuenta->actualizarSaldoRecursivo($montoDelta);
             });
         });
     }
