@@ -25,12 +25,16 @@ class CuentaInfolist
                     ->boolean(),
                 TextEntry::make('saldo_actual')
                     ->numeric(),
-                TextEntry::make('created_at')
+                IconEntry::make('es_mayor')
+                    ->label('Cuenta Mayor')
+                    ->boolean()
+                
+                /*TextEntry::make('created_at')
                     ->dateTime()
                     ->placeholder('-'),
                 TextEntry::make('updated_at')
                     ->dateTime()
-                    ->placeholder('-'),
+                    ->placeholder('-'),*/
             ]);
     }
 }

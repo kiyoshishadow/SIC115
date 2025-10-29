@@ -50,14 +50,18 @@ class CuentaForm
                 Select::make('naturaleza')
                     ->options(['Deudor' => 'Deudor', 'Acreedor' => 'Acreedor'])
                     ->required(),
-
-                Toggle::make('permite_movimientos')
-                    ->required(),
-
                 TextInput::make('saldo_actual')
                     ->required()
                     ->numeric()
                     ->default(0.0),
+                Toggle::make('permite_movimientos')
+                    ->default(true)
+                    ->required(),
+                Toggle::make('es_mayor')
+                    ->label('Cuenta Mayor')
+                    ->default(true)
+                    ->required(),
+                
             ]);
     }
 }

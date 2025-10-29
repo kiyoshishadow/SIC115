@@ -17,6 +17,7 @@ class Cuenta extends Model
         'nombre',
         'tipo',
         'naturaleza',
+        'es_mayor',
         'permite_movimientos',
         'saldo_actual',
     ];
