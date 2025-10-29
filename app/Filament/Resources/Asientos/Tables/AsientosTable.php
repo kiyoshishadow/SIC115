@@ -20,8 +20,7 @@ class AsientosTable
                     ->sortable(),
                 TextColumn::make('numero_asiento')
                     ->searchable(),
-                TextColumn::make('descripcion')
-                    ->badge(),
+                TextColumn::make('descripcion'),
                 TextColumn::make('total_debe')
                     ->label('Total Debe')
                     ->numeric(decimalPlaces: 2)

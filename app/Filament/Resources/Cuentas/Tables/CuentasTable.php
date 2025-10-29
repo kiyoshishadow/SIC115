@@ -16,7 +16,7 @@ class CuentasTable
     {
         return $table
             ->columns([
-                TextColumn::make('padre.id')->label('Padre')->searchable(),
+                TextColumn::make('padre.codigo')->label('Padre')->searchable(),
                 TextColumn::make('codigo')->label('Código')->searchable(),
                 TextColumn::make('nombre')->label('Nombre')->searchable(),
                 TextColumn::make('tipo')->badge()->label('Tipo'),

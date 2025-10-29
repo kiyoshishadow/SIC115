@@ -9,6 +9,7 @@ use Filament\Forms\Components\Textarea;
 
 use Filament\Forms\Components\Repeater;
 use Filament\Schemas\Schema;
+use Illuminate\Database\Eloquent\Builder;
 
 class AsientoForm
 {
@@ -40,7 +41,13 @@ class AsientoForm
                     ->schema([
                         Select::make('cuenta_id')
                             ->label('Cuenta')
-                            ->relationship('cuenta', 'nombre') // Muestra 'nombre_cuenta'
+                            //->relationship('cuenta', 'nombre') // Muestra 'nombre_cuenta'
+                            ->relationship(
+                                name: 'cuenta', // El nombre de la relación en el modelo Movimiento
+                                titleAttribute: 'nombre', // El campo a mostrar
+                                // Esta es la línea clave que añade el filtro
+                                modifyQueryUsing: fn (Builder $query) => 
+                                        $query->where('permite_movimientos', true)->orderBy('codigo'))
                             ->searchable(['codigo', 'nombre']) // Busca por código o nombre
                             ->preload()
                             ->required()
