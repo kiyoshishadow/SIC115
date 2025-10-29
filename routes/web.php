@@ -5,6 +5,7 @@ use App\Http\Controllers\CuentaController;
 use App\Http\Controllers\LibroCompraController;
 use App\Http\Controllers\TerceroController;
 use App\Http\Controllers\LibroVentaController;
+use App\Http\Controllers\AsientoController;
 Route::get('/', function () {
     return redirect('/admin');
 });
@@ -25,3 +26,6 @@ Route::get('/terceros/pdf', [TerceroController::class, 'exportPdf'])->name('terc
 
 Route::get('/libro-ventas/pdf', [LibroVentaController::class, 'exportPdf'])
     ->name('libroventas.pdf');
+    
+Route::get('/asientos/pdf', [AsientoController::class, 'exportPdf'])
+    ->name('asientos.pdf');

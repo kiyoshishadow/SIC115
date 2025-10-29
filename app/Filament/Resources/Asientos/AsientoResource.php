@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Filament\Resources\Asientos;
-
+use Filament\Actions\Action;
 use App\Filament\Resources\Asientos\Pages\CreateAsiento;
 use App\Filament\Resources\Asientos\Pages\EditAsiento;
 use App\Filament\Resources\Asientos\Pages\ListAsientos;
@@ -39,7 +39,15 @@ class AsientoResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return AsientosTable::configure($table);
+        return AsientosTable::configure($table)
+        ->headerActions([
+            Action::make('libro_diario_pdf')
+                ->label('Exportar Libro Diario')
+                ->icon('heroicon-o-arrow-down-tray')
+                ->color('danger')
+                ->url(route('asientos.pdf'))
+                ->openUrlInNewTab(),
+        ]);
     }
 
     public static function getRelations(): array
