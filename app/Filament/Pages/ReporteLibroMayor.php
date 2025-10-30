@@ -14,10 +14,11 @@ use Filament\Pages\Page;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
 use UnitEnum;
-
+use Filament\Actions\Action;
 class ReporteLibroMayor extends Page implements HasForms
 {
     use InteractsWithForms;
+
     // --- 1. Propiedades para los filtros y resultados ---
     public ?int $cuentaId = null;
     public ?string $fechaInicio = null;
@@ -31,6 +32,17 @@ class ReporteLibroMayor extends Page implements HasForms
     protected static ?string $navigationLabel = 'Libro Mayor';
     protected string $view = 'filament.pages.reporte-libro-mayor';
 
+    protected function getHeaderActions(): array
+{
+    return [
+        Action::make('exportar_pdf')
+            ->label('Exportar a PDF')
+            ->icon('heroicon-o-arrow-down-tray')
+            ->url(fn () => route('reporte.libro-mayor.pdf'))
+            ->openUrlInNewTab(),
+    ];
+}
+    // --- 3. Formulario ---
     public function form(Schema $form): Schema
     {
         return $form
@@ -51,7 +63,6 @@ class ReporteLibroMayor extends Page implements HasForms
                     ->label('Fecha de Inicio')
                     ->required()
                     ->reactive(),
-
                 DatePicker::make('fechaFin')
                     ->label('Fecha de Fin')
                     ->required()
@@ -60,74 +71,77 @@ class ReporteLibroMayor extends Page implements HasForms
             ->columns(3);
     }
 
+    // --- 4. Cargar Datos con corrección UTF-8 ---
     public function cargarDatos(): void
     {
-        // 1. Validar que los datos del formulario están
         $data = $this->form->getState();
-        $this->resultados = []; // Resetea los resultados
+        $this->resultados = []; // Resetea resultados
 
         $cuenta = Cuenta::find($data['cuentaId']);
         if (!$cuenta) {
             $this->resultados = [];
             return;
         }
-        $this->nombreCuentaSeleccionada = $cuenta->getCodigoNombreAttribute();
 
-        // --- 2. CÁLCULO DEL SALDO ANTERIOR ---
+
+        // Forzar UTF-8
+        $this->nombreCuentaSeleccionada = mb_convert_encoding($cuenta->getCodigoNombreAttribute(), 'UTF-8', 'UTF-8');
+
+        // --- Saldo Anterior ---
         $saldoAnterior = 0;
-        
-        // Obtenemos todos los movimientos ANTERIORES a la fecha de inicio
         $movsAnteriores = Movimiento::where('cuenta_id', $data['cuentaId'])
             ->join('asientos', 'movimientos.asiento_id', '=', 'asientos.id')
             ->where('asientos.fecha', '<', $data['fechaInicio'])
             ->select('movimientos.debe', 'movimientos.haber')
             ->get();
+
         foreach ($movsAnteriores as $mov) {
-            if ($cuenta->naturaleza === 'Deudor') {
-                $saldoAnterior += ($mov->debe - $mov->haber);
-            } else { // Asumimos 'Acreedor'
-                $saldoAnterior += ($mov->haber - $mov->debe);
-            }
+            $saldoAnterior += ($cuenta->naturaleza === 'Deudor') 
+                ? $mov->debe - $mov->haber 
+                : $mov->haber - $mov->debe;
         }
 
+        // --- Movimientos del período ---
         $movsPeriodo = Movimiento::where('cuenta_id', $data['cuentaId'])
             ->join('asientos', 'movimientos.asiento_id', '=', 'asientos.id')
             ->whereBetween('asientos.fecha', [$data['fechaInicio'], $data['fechaFin']])
-            ->select(
-                'asientos.fecha',
-                'asientos.numero_asiento', 
-                'movimientos.debe',
-                'movimientos.haber'
-            )
+            ->select('asientos.fecha', 'asientos.numero_asiento', 'movimientos.debe', 'movimientos.haber')
             ->orderBy('asientos.fecha')
-            ->orderBy('asientos.id') 
+            ->orderBy('asientos.id')
             ->get();
+
         $saldoCorriente = $saldoAnterior;
+
+        // --- Saldo anterior al período ---
         $this->resultados[] = [
             'fecha' => $data['fechaInicio'],
-            'numero_partida' => 'SALDO ANTERIOR AL PERÍODO',
+            'numero_partida' => mb_convert_encoding('SALDO ANTERIOR AL PERÍODO', 'UTF-8', 'UTF-8'),
             'debe' => 0,
             'haber' => 0,
             'saldo' => $saldoCorriente,
         ];
 
         foreach ($movsPeriodo as $mov) {
-            $delta = 0;
-            if ($cuenta->naturaleza === 'Deudor') {
-                $delta = $mov->debe - $mov->haber;
-            } else { // 'Acreedor'
-                $delta = $mov->haber - $mov->debe;
-            }
+            $delta = ($cuenta->naturaleza === 'Deudor') 
+                ? $mov->debe - $mov->haber 
+                : $mov->haber - $mov->debe;
+
             $saldoCorriente += $delta;
 
             $this->resultados[] = [
                 'fecha' => $mov->fecha,
-                'numero_partida' => $mov->numero_asiento,
+                'numero_partida' => mb_convert_encoding($mov->numero_asiento, 'UTF-8', 'UTF-8'),
                 'debe' => $mov->debe,
                 'haber' => $mov->haber,
                 'saldo' => $saldoCorriente,
             ];
         }
-
-    }    
+        
+    session([
+        'resultados_libro_mayor' => $this->resultados,
+        'cuenta_nombre' => $this->nombreCuentaSeleccionada,
+        'fecha_inicio' => $this->fechaInicio,
+        'fecha_fin' => $this->fechaFin,
+    ]);
+    }
 }
