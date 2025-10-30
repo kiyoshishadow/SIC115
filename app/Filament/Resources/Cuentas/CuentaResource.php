@@ -95,7 +95,7 @@ class CuentaResource extends Resource
                     ->label('Descargar PDF (Todo)')
                     ->icon('heroicon-o-arrow-down-tray')
                     ->color('danger')
-                    ->url('/cuentas/catalogo-pdf')
+                    ->url(route('cuentas.pdf'))
                     ->openUrlInNewTab(),
             ])
             ->bulkActions([

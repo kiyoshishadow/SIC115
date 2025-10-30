@@ -11,6 +11,7 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Filament\Pages\Page;
+use Filament\Actions\Action;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
 use UnitEnum;
@@ -30,6 +31,24 @@ class ReporteLibroMayor extends Page implements HasForms
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-book-open';
     protected static ?string $navigationLabel = 'Libro Mayor';
     protected string $view = 'filament.pages.reporte-libro-mayor';
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            Action::make('export_pdf')
+                ->label('Descargar PDF')
+                ->icon('heroicon-o-arrow-down-tray')
+                ->color('danger')
+                ->url(function () {
+                    return route('libro-mayor.pdf', [
+                        'cuentaId' => $this->cuentaId,
+                        'fechaInicio' => $this->fechaInicio,
+                        'fechaFin' => $this->fechaFin,
+                    ]);
+                })
+                ->openUrlInNewTab(),
+        ];
+    }
 
     public function form(Schema $form): Schema
     {
