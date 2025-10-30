@@ -29,3 +29,4 @@ Route::get('/cuentas/pdf', [CuentaController::class, 'generarCatalogo'])->name('
 Route::get('/cuenta.pdf/{cuenta}', [CuentaController::class, 'exportCuentaPdf'])->name('cuenta.pdf');
 Route::get('/libro-compras/pdf', [LibroCompraController::class, 'exportPdf'])->name('librocompras.pdf');
 Route::get('/libro-ventas/pdf', [LibroVentaController::class, 'exportPdf'])->name('libroventas.pdf');
+Route::get('/terceros/pdf', [TerceroController::class, 'exportPdf'])->name('terceros.pdf');
