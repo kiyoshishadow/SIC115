@@ -46,12 +46,8 @@ class Movimiento extends Model
                 $montoDelta = 0;
                 // 2. Aplicamos la lógica contable
                 if ($cuenta->naturaleza === 'Deudor') {
-                    // Deudor (Activos, Gastos): Sube con Debe, Baja con Haber
-                    //$cuenta->saldo_actual = $cuenta->saldo_actual + $movimiento->debe - $movimiento->haber;
                     $montoDelta = $movimiento->debe - $movimiento->haber;
                 } else if ($cuenta->naturaleza === 'Acreedor') {
-                    // Acreedor (Pasivos, Patrimonio, Ingresos): Sube con Haber, Baja con Debe
-                    //$cuenta->saldo_actual = $cuenta->saldo_actual + $movimiento->haber - $movimiento->debe;
                     $montoDelta = $movimiento->haber - $movimiento->debe;
                 }
 
@@ -71,18 +67,10 @@ class Movimiento extends Model
                 $viejoHaber = $movimiento->getOriginal('haber');
                 $montoDelta = 0;
                 if ($cuenta->naturaleza === 'Deudor') {
-                    //$cuenta->saldo_actual = $cuenta->saldo_actual - $viejoDebe + $viejoHaber;
                     $montoDelta = ($movimiento->debe - $movimiento->haber) - ($viejoDebe - $viejoHaber);
                 } else if ($cuenta->naturaleza === 'Acreedor') {
-                    //$cuenta->saldo_actual = $cuenta->saldo_actual - $viejoHaber + $viejoDebe;
                     $montoDelta = ($movimiento->haber - $movimiento->debe) - ($viejoHaber - $viejoDebe);
                 }
-                /*
-                if ($cuenta->naturaleza === 'Deudor') {
-                    $cuenta->saldo_actual = $cuenta->saldo_actual + $movimiento->debe - $movimiento->haber;
-                } else if ($cuenta->naturaleza === 'Acreedor') {
-                    $cuenta->saldo_actual = $cuenta->saldo_actual + $movimiento->haber - $movimiento->debe;
-                }*/
 
                 $cuenta->actualizarSaldoRecursivo($montoDelta);
             });
