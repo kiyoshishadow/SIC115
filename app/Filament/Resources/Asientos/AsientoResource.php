@@ -52,14 +52,7 @@ class AsientoResource extends Resource
                         ->when($data['fecha_inicio'], fn($q) => $q->whereDate('fecha', '>=', $data['fecha_inicio']))
                         ->when($data['fecha_fin'], fn($q) => $q->whereDate('fecha', '<=', $data['fecha_fin']));
                 })
-        ])
-        ->headerActions([
-            Action::make('libro_diario_pdf')
-                ->label('Descargar PDF')
-                ->icon('heroicon-o-arrow-down-tray')
-                ->color('danger')
-                ->url(route('asientos.pdf'))
-                ->openUrlInNewTab(),
+     
         ]);
     }
 

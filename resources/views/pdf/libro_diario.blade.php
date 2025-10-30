@@ -112,6 +112,11 @@
         </tbody>
     </table>
 @endforeach
+<script>
+    window.addEventListener('refresh-before-pdf', () => {
+        location.reload();
+    });
+</script>
 
 </body>
 </html>
